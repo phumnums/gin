@@ -40,6 +40,7 @@ func main() {
 	router.GET("/books", getBooks)
 	router.GET("/book/:id", getBookByID)
 	router.POST("/book", createbook)
+	router.PUT("/book/:id", UpdateBookByID)
 
 	router.Run("localhost:8080")
 }
@@ -70,4 +71,29 @@ func createbook(c *gin.Context) {
 
 	books = append(books, newBook)
 	c.JSON(http.StatusCreated, newBook)
+}
+
+func UpdateBookByID(c *gin.Context) {
+	var updateBook book
+
+	if err := c.BindJSON(&updateBook); err != nil {
+		return
+	}
+
+	paramID := c.Param("id")
+
+	for i := range books {
+		if paramID == books[i].ID {
+
+			books[i].Name = updateBook.Name
+			books[i].Author = updateBook.Author
+			books[i].Price = updateBook.Price
+
+			c.JSON(http.StatusOK, books[i])
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, "book not found")
+
 }
