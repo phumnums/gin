@@ -39,6 +39,9 @@ func main() {
 
 	router.GET("/books", getBooks)
 	router.GET("/book/:id", getBookByID)
+	router.POST("/book", createbook)
+	router.PUT("/book/:id", UpdateBookByID)
+	router.DELETE("/book/:id", DeleteBookByID)
 
 	router.Run("localhost:8080")
 }
@@ -58,4 +61,54 @@ func getBookByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusNotFound, "book not found")
 
+}
+
+func createbook(c *gin.Context) {
+	var newBook book
+
+	if err := c.BindJSON(&newBook); err != nil {
+		return
+	}
+
+	books = append(books, newBook)
+	c.JSON(http.StatusCreated, newBook)
+}
+
+func UpdateBookByID(c *gin.Context) {
+	var updateBook book
+
+	if err := c.BindJSON(&updateBook); err != nil {
+		return
+	}
+
+	paramID := c.Param("id")
+
+	for i := range books {
+		if paramID == books[i].ID {
+
+			books[i].Name = updateBook.Name
+			books[i].Author = updateBook.Author
+			books[i].Price = updateBook.Price
+
+			c.JSON(http.StatusOK, books[i])
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, "book not found")
+
+}
+
+func DeleteBookByID(c *gin.Context) {
+	paramID := c.Param("id")
+
+	for i := range books {
+		if paramID == books[i].ID {
+			// append data before i and after i (skip paramID)
+			books = append(books[:i], books[i+1:]...)
+			c.JSON(http.StatusOK, "deleted book successfuly")
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, "book not found")
 }
