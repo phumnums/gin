@@ -41,6 +41,7 @@ func main() {
 	router.GET("/book/:id", getBookByID)
 	router.POST("/book", createbook)
 	router.PUT("/book/:id", UpdateBookByID)
+	router.DELETE("/book/:id", DeleteBookByID)
 
 	router.Run("localhost:8080")
 }
@@ -96,4 +97,18 @@ func UpdateBookByID(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, "book not found")
 
+}
+
+func DeleteBookByID(c *gin.Context) {
+	paramID := c.Param("id")
+
+	for i := range books {
+		if paramID == books[i].ID {
+			// append data before i and after i (skip paramID)
+			books = append(books[:i], books[i+1:]...)
+			c.JSON(http.StatusOK, "deleted book successfuly")
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, "book not found")
 }
