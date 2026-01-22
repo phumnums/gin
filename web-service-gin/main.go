@@ -34,14 +34,28 @@ var books = []book{
 	},
 }
 
-func getBooks(c *gin.Context) {
-	c.JSON(http.StatusOK, books)
-}
-
 func main() {
 	router := gin.Default()
 
 	router.GET("/books", getBooks)
+	router.GET("/book/:id", getBookByID)
 
 	router.Run("localhost:8080")
+}
+
+func getBooks(c *gin.Context) {
+	c.JSON(http.StatusOK, books)
+}
+
+func getBookByID(c *gin.Context) {
+
+	paramID := c.Param("id")
+	for _, book := range books {
+		if paramID == book.ID {
+			c.JSON(http.StatusOK, book)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, "book not found")
+
 }
